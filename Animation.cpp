@@ -1,16 +1,16 @@
 #include "Animation.h"
-#include <iostream>
-Animation::Animation(sf::Vector2f pos,float switchtime)
+
+Animation::Animation(sf::Texture* t, sf::Vector2f pos,float switchtime)
 {
 	this->pos=pos;
-	this->t.loadFromFile("exp2_0.png");
+	this->t=t;
 	this->switchtime=switchtime;
-	this->animation.setTexture(t);
+	this->animation.setTexture(*t);
 	this->totaltime=0;
 	this->currentimage.x=0;
 	this->currentimage.y=0 ;
-	this->width=t.getSize().x/4;
-	this->height=t.getSize().x/4;
+	this->width=t->getSize().x/NOIMAGES;
+	this->height=t->getSize().x/NOIMAGES;
 	this->explosiontime=0;
 	rect.width=this->width;
 	rect.height=this->height;
@@ -18,12 +18,12 @@ Animation::Animation(sf::Vector2f pos,float switchtime)
 	rect.left=0;
 	animation.setTextureRect(rect);
 	this->animation.setPosition(pos);
+	animation.setScale(1.2,1.2);
 	
 }
 
 Animation::~Animation()
 {
-
 }
 
 void Animation::update(float dt)
@@ -33,7 +33,7 @@ void Animation::update(float dt)
 	if(totaltime>switchtime)
 	{
 		currentimage.x++;
-		if(currentimage.x>3)
+		if(currentimage.x>NOIMAGES-1)
 		{
 			currentimage.x=0;
 		}
