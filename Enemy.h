@@ -3,6 +3,8 @@
 #include<SFML/Graphics.hpp>
 #include "Collider.h"
 #include "Bullet.h"
+#define EVEL 100
+#define EACC 200
  class Enemy
  {
 	private:
@@ -10,15 +12,15 @@
 	sf::Vector2f position;
 	float acceleration;
 	sf::Vector2f velocity;
-	sf::Vector2f maxvelocity;
+	
 	float direction;
 	float distance;
-	Animation* a=nullptr;
+	Animation* a;
 	bool collided;
-	bool expcomp=false;
+	bool expcomp;
 	public:
-	Enemy(sf::Texture* t,sf::Vector2f setpos);
-	~Enemy();
+	Enemy(sf::Texture* t,sf::Vector2f setpos,sf::Texture* exptex);
+	 ~Enemy();
 	void update(float dt);
 	void move(float dt);
 	void render(sf::RenderWindow* window);
