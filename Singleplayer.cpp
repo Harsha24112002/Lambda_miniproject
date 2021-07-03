@@ -1,36 +1,41 @@
 #include "Singleplayer.h"
-#include<iostream>
-#include<stdexcept>
-#include "Leveltwo.h"
 
+
+#include <iostream>
 Singleplayer::Singleplayer(sf::RenderWindow* window,std::stack<state*>* states):state(window,states)
 {
-	player = new Player(textures["PLAYER"],sf::Color::Cyan);
-
-	ammo1.setPosition(window->getSize().x-100,window->getSize().y-100);
-	ammo1.setSize(sf::Vector2f(50.f,20.0f));
-	std::cout<<window->getSize().x;
-	ammo1.setOutlineThickness(3);
-	ammo1.setOutlineColor(sf::Color::White);
-	ammo1.setFillColor(sf::Color::Green);
+	this->Createplayer();
+	attributes = new Attributes(player,"PLAYER : ",100.0);
+	this->Initbackground();
+	ebt=0.0;
+	score=0;
+	powerup=nullptr;
 	this->intilevels();
-	gonext=true;
 	direction={0.0f,0.0f};
 	enemybullet=nullptr;
 }
 Singleplayer::~Singleplayer()
 {
 	
-	for(auto& a: enemies)
-	{
-		delete a;
-	}
+	delete attributes;
+	delete powerup;
+}
+void Singleplayer::Createplayer()
+{
+	player = new Player(textures["PLAYER"],(sf::Color(255,131,250,255)),textures["BULLET"],sf::Vector2f PLAYERPOS);
 }
 void Singleplayer::intilevels()
 {
-	levels.push_front(new Leveltwo(textures["ENEMY"],&levels,&enemies));
-	levels.push_front(new Levelone(textures["ENEMY"],&levels,&enemies));
+	levels.push_back(new Level(textures["ENEMY"],textures["EXPLOSION"],"levelonepositions.txt",&enemies));
+	levels.push_back(new Level(textures["ENEMY"],textures["EXPLOSION"],"leveltwopositions.txt",&enemies));
 	startlevel();
+}
+void Singleplayer::Initbackground()
+{
+	background.setTexture(textures["BACKGROUND"]);
+	background.setSize(sf::Vector2f((float)window->getSize().x,(float)window->getSize().y));
+	background.setPosition((float)window->getPosition().x,(float)window->getPosition().y);
+	background.setFillColor(sf::Color(sf::Color::White.toInteger()));
 }
 void Singleplayer::startlevel()
 {
@@ -48,7 +53,63 @@ void Singleplayer::CreateBullet(float dt)
 }
 void Singleplayer::CreateEnemyBullet(sf::Vector2f pos)
 {
-	enemybullet=(new Bullet(textures["ENEMYBULLET"],pos,-1.0f,sf::Color::White,5));
+	if(!player->isinvisible() && ebt>TIMEBETWEENBULLETS)
+	enemybullet=(new Bullet(textures["ENEMYBULLET"],pos,-1.0f,sf::Color::Yellow,1.2*BULLETSPEED));
+}
+
+void Singleplayer::Createpowerup()
+{
+	int a= rand()%3;
+	
+	switch(a)
+	{
+		case 0: 
+		{
+			if(poweruptime>POWERUPTIME)
+			{
+			poweruptime=0;
+			if(!powerup)
+			{
+			float xpos=rand()%(window->getSize().x-100);
+			powerup=new Shield(textures["SHIELD"],sf::Vector2f(xpos,-20));
+			type=SHIELD;
+			}
+			}
+			
+			break;
+		}
+		case 1:
+		{
+			if(poweruptime>POWERUPTIME)
+			{
+			poweruptime=0;
+			if(!powerup)
+			{
+			float xpos=rand()%(window->getSize().x-100);
+			powerup=new Invisible(textures["INVISIBLE"],sf::Vector2f(xpos,-20));
+			type=INVISIBILTY;
+			}
+			}
+			
+			break;
+		}
+		case 2:
+		{
+			if(poweruptime>POWERUPTIME)
+			{
+				
+				poweruptime=0;
+				if(!powerup)
+				{
+				float xpos=rand()%(window->getSize().x-100);
+				powerup=new Medicine(textures["MEDICINE"],sf::Vector2f(xpos,-20));
+				type=MEDICINE;
+				}
+			}
+			
+			break;
+		}
+	}
 }
 
 bool Singleplayer::CheckPlayerBounds()
@@ -60,11 +121,11 @@ bool Singleplayer::CheckPlayerBounds()
 	}
 	else if(player->getpos().x<0)
 	{
-		player->setpos(sf::Vector2f(20,player->getpos().y));
+		player->setpos(sf::Vector2f(30,player->getpos().y));
 	}
 	else if(player->getpos().x>window->getSize().x)
 	{
-		player->setpos(sf::Vector2f( window->getSize().x-20,player->getpos().y));
+		player->setpos(sf::Vector2f( window->getSize().x-30,player->getpos().y));
 	
 	}
 	return false;
@@ -113,7 +174,6 @@ void Singleplayer::updatecollison()
 	
 		player->increasescore();
 		enemies[index]->onCollison();
-		
 		break;
 
 	}
@@ -161,6 +221,18 @@ void Singleplayer::updatebullets()
 	}
 	
 }
+void Singleplayer::checkcatchedpowerup()
+{
+	if(powerup)
+	{
+		if(powerup->getcollider().checkcollison(player->getcollider()))
+		{
+			delete powerup;
+			powerup=nullptr;
+			player->equip(type);
+		}
+	}
+}
 void Singleplayer::levelupdates()
 {
 	if(levels.empty())
@@ -173,22 +245,21 @@ void Singleplayer::levelupdates()
 		{
 			delete enemybullet;
 			enemybullet=nullptr;
-			//bullets.clear();
 			
 			delete levels.front();
 			levels.pop_front();
-				
+			score+=player->getscore();
+			player->reset();
+			delete powerup;
+			powerup=nullptr;	
 			if(levels.empty())
 			{
 				this->endstate();
+				states->push(new Levelup(window,states));			
 			}
 			else
 			{
-				states->push(new Levelup(window,states,gonext));
-				if(!gonext)
-				{
-					//levels.push_front(new Levelone(textures["ENEMY"],&levels,&enemies));
-				}				
+				states->push(new Levelup(window,states));			
 
 				this->startlevel();	
 			}
@@ -197,17 +268,30 @@ void Singleplayer::levelupdates()
 		else 
 		{
 			levels.front()->update();
-			
 		}
 	}
 }
+void Singleplayer::Deletepowerup()
+{
+	if(powerup)
+	{
+	if(powerup->getpos().y>window->getSize().y+100)
+	{
+		delete powerup;
+		powerup=nullptr;
+	}
+	}
+}
+
 void Singleplayer::update(float dt)
 {
 	
 	levelupdates();
-	totaltime+=dt;
+	ebt+=dt;
 	updateinput(dt);
-
+	poweruptime+=dt;
+	Createpowerup();
+	attributes->update(dt);
 	if(player)
 	{
 	player->update(dt);
@@ -216,15 +300,17 @@ void Singleplayer::update(float dt)
 	{
 		a->update(dt);
 	}
-	/*for(auto& b:bullets)
+	if(powerup)
 	{
-		b->update(dt);
-	}*/
+		powerup->update(dt);
+	}
 	updatebullets();	
 	if(enemybullet)
 	{
 		enemybullet->update(dt);
 	}
+	checkcatchedpowerup();
+	Deletepowerup();
 	updatecollison();
 	checkplayersafety();
 	Checkcollisonwithbullets();
@@ -248,21 +334,22 @@ void Singleplayer::checkplayersafety()
 	{
 	if(enemybullet->getcollider().checkcollison(player->getcollider()))
 	{
-		playerhit++;
+		if(!player->hasshield())
+		player->incrementkill();
 		delete enemybullet;
 		enemybullet=nullptr;
-		std::cout<<"R"<<std::endl;
+		
 		
 	}
 	}
-	if(playerhit==3)
+	if(player->getkill()==0)
 	{
 		delete player;
 		player=nullptr;
 	}
 	if(!player)
 	{
-		this->endstate();
+		states->push(new Gameover(window,states,&quit));
 	}
 }
 
@@ -275,7 +362,7 @@ int Singleplayer::getnearestenemy()
 	int store=0;
 	for(unsigned i=0;i<enemies.size();i++)
 	{
-		if(abs(enemies[i]->getpos().x-player->getpos().x)<min)
+		if(abs(enemies[i]->getpos().x-player->getpos().x)<=min)
 		{
 			min=abs(enemies[i]->getpos().x-player->getpos().x);
 			store=i;
@@ -289,16 +376,13 @@ int Singleplayer::getnearestenemy()
 }	
 void Singleplayer::render()
 {
-	
+	window->draw(background);
 	for(auto& a:enemies)
 	{
 		a->render(window);
 	}
-	/*for(auto & b:bullets)
-	{
-		b->render(window);
-	}*/
 	
+	attributes->render(window);
 	if(player)
 	{
 	
@@ -308,20 +392,10 @@ void Singleplayer::render()
 	{
 		enemybullet->render(window);
 	}
-	/*for(unsigned i=0;i<2-bullets.size();i++)
+	if(powerup)
 	{
-		ammo1.setPosition(window->getSize().x-100,window->getSize().y-100-20*i);
-		window->draw(ammo1);
-	}*/
-}
-/*bool Singleplayer::levelover()
-{
-	if(player)
-	{
-		if(this->enemies.empty())
-		{
-			return true;
-		}
+		powerup->render(window);
 	}
-	return false;
-}*/
+	
+}
+

@@ -1,13 +1,19 @@
 #ifndef SINGLEPLAYER_H
 #define SINGLEPLAYER_H
+#define POWERUPTIME 15.0
+#define PLAYERPOS (window->getSize().x/2.0f,window->getSize().y-100)
 #include "State.h"
 #include "Player.h"
 #include "Enemy.h"
+#include "Restorehealth.h"
+#include "Playerattributes.h"
 #include <list>
+#include "Shield.h"
 #include "Pause.h"
 #include "Level.h"
-#include "Levelone.h"
 #include "Levelup.h"
+#include "Invisible.h"
+#include "Gameover.h"
 class Singleplayer : public state
 {
 	public:
@@ -26,23 +32,28 @@ class Singleplayer : public state
 
 	protected:
 	Player* player;
+	Attributes* attributes;
 	std::vector<Enemy*> enemies;
 	sf::Vector2f direction;
-	unsigned playerhit=0;
-	//std::vector<Bullet*> bullets;
+	Powerup* powerup;
+	Powerups type;
 	Bullet* enemybullet;
+	unsigned score;
+	float ebt;
 	sf::RectangleShape ammo1;
 	std::list<Level*> levels;
-	bool gonext;
-
-	unsigned activebulletid=0;	
-	unsigned count=0;
-	float totaltime=0;
+	sf::RectangleShape background;
+	float poweruptime;
 	void CreateBullet(float dt);
 	void CreateEnemyBullet(sf::Vector2f pos);
 	int getnearestenemy();
+	void Deletepowerup();
+	void Initbackground();
+	void checkcatchedpowerup();
 	void Checkcollisonwithbullets();
+	void Createpowerup();
 	bool CheckPlayerBounds();
+	void Createplayer();
 };
 
 #endif
