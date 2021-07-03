@@ -1,29 +1,27 @@
 #include "Enemy.h"
 
 #include <iostream>
- Enemy::Enemy(sf::Texture* t,sf::Vector2f pos)
+ Enemy::Enemy(sf::Texture* t,sf::Vector2f pos,sf::Texture* exptex)
  {
 	 enemy.setTexture(*t);
 	 enemy.setPosition(pos);
 	 enemy.setScale(0.2,0.2);
 	 enemy.setOrigin(sf::Vector2f(enemy.getGlobalBounds().width/2.0f,enemy.getGlobalBounds().height/2.0f));
-	 enemy.setColor(sf::Color(255,131,250,255));
+	 enemy.setColor(sf::Color::Yellow);
 	 this->position = pos;
-	 maxvelocity.x=20.0f;
-	 maxvelocity.y=0;
-	 acceleration=200.0f;	
-	velocity.x=20.0f;
+	 
+	 acceleration=EACC;	
+	velocity.x=EVEL;
 	velocity.y=0.0f;
 	direction=1.0f;
 	distance=0.0f;
 	this->collided=false;
-	
-	a=new Animation(sf::Vector2f(enemy.getPosition().x+15,enemy.getPosition().y-30),0.3);
+	this->expcomp=false;	
+	a=new Animation(exptex,sf::Vector2f(enemy.getPosition().x+15,enemy.getPosition().y-30),0.3);
 	
  }
  Enemy::~Enemy()
  {
-	 delete a;
  }
  void Enemy::update(float dt)
  {	
