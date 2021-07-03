@@ -2,55 +2,69 @@
 #include<iostream>
 #include<stdexcept>
 
-
 Dualplayer::Dualplayer(sf::RenderWindow* window,std::stack<state*>* states):state(window,states)
 {
+
+	
 	player1=nullptr;
 	player2=nullptr;
 	this->CreatePlayer1();
 	this->CreatePlayer2();
 	this->intilevels();
+	this->Initbackground();
 	this->initvariables();
+
+	
 }
 Dualplayer::~Dualplayer()
 {
 	
-	for(auto& a: enemies)
-	{
-		delete a;
-	}
+	delete attribute1;
+	delete attribute2;
+	delete powerup;
 	
 }
 
 void Dualplayer::initvariables()
 {
+	powerup=nullptr;
 	gonext=true;
+	player1score=0;
+	player2score=0;
 	direction={0.0f,0.0f};
 	direction2={0.0f,0.0f};
 	enemybullet1=nullptr;
 	enemybullet2=nullptr;
-	totaltime=0.0f;
-	totaltime2=0.0f;
 	revivetime=0.0f;
-	player1->textformat("PLAYER 1 :",sf::Vector2f(window->getSize().x-300,100));
-	player2->textformat("PLAYER 2 :",sf::Vector2f(window->getSize().x-300,200));
+	ebt1=0.0f;
+	ebt2=0.0f;
+	poweruptime=0.0f;
+	attribute1 = new Attributes(player1,"PLAYER 1 : ",100.0);
+	attribute2 = new Attributes(player2,"PLAYER 2 : ",300.0);
 
+}
+void Dualplayer::Initbackground()
+{
+	background.setTexture(textures["BACKGROUND"]);
+	background.setSize(sf::Vector2f((float)window->getSize().x,(float)window->getSize().y));
+	background.setPosition((float)window->getPosition().x,(float)window->getPosition().y);
+	background.setFillColor(sf::Color(sf::Color::White.toInteger()));
 }
 
 void Dualplayer::CreatePlayer1()
 {
 	if(!player1)
-	player1 = new Player(textures["PLAYER"],sf::Color::Cyan);
+	player1 = new Player(textures["PLAYER"],sf::Color::Cyan,textures["BULLET"],sf::Vector2f PLAYER1POS);
 }
 void Dualplayer::CreatePlayer2()
 {
 	if(!player2)
-	player2=new Player(textures["PLAYER"],sf::Color(255,165,0,255));
+	player2=new Player(textures["PLAYER"],sf::Color(255,131,250,255),textures["BULLET"],sf::Vector2f PLAYER2POS);
 }
 void Dualplayer::intilevels()
 {
-	levels.push_front(new Leveltwo(textures["ENEMY"],&levels,&enemies));
-	levels.push_front(new Levelone(textures["ENEMY"],&levels,&enemies));
+	levels.push_back(new Level(textures["ENEMY"],textures["EXPLOSION"],"levelonepositions.txt",&enemies));
+	levels.push_back(new Level(textures["ENEMY"],textures["EXPLOSION"],"leveltwopositions.txt",&enemies));
 	startlevel();
 }
 void Dualplayer::startlevel()
@@ -79,14 +93,20 @@ void Dualplayer::CreateBullet2(float dt)
 
 void Dualplayer::CreateEnemyBullet1(sf::Vector2f pos)
 {
-	if(!enemybullet1)
-	enemybullet1=(new Bullet(textures["ENEMYBULLET"],pos,-1.0f,sf::Color::White,5));
+	if(!enemybullet1 && !player1->isinvisible() &&ebt1>TIMEBETWEENBULLETS)
+	{
+	enemybullet1=(new Bullet(textures["ENEMYBULLET"],pos,-1.0f,sf::Color::Green,1.5*BULLETSPEED));
+	ebt1=0;
+	}
 }
 
 void Dualplayer::CreateEnemyBullet2(sf::Vector2f pos)
 {
-	if(!enemybullet2 )
-	enemybullet2=new Bullet(textures["ENEMYBULLET"],pos,-1.0f,sf::Color::White,5);
+	if(!enemybullet2 && !player2->isinvisible() && ebt2>TIMEBETWEENBULLETS)
+	{
+	enemybullet2=new Bullet(textures["ENEMYBULLET"],pos,-1.0f,sf::Color::Green,1.5*BULLETSPEED);
+	ebt2=0;
+	}
 }
 bool Dualplayer::CheckPlayerBounds(Player* player1)
 {
@@ -173,6 +193,7 @@ void Dualplayer::updatecollison()
 		{	
 		if(player1->checkhitenemy(enemies[index]))
 		{
+			player1->increasescore();
 			enemies[index]->onCollison();
 			break;
 		}
@@ -186,6 +207,7 @@ void Dualplayer::updatecollison()
 		{	
 		if(player2->checkhitenemy(enemies[index]))
 		{
+			player2->increasescore();
 			enemies[index]->onCollison();
 			break;
 		}
@@ -212,6 +234,12 @@ void Dualplayer::updatecollison()
 }
 void Dualplayer::updatebullets()
 {
+	if(enemies.size()==1 && player1 && player2)
+	{
+		if(!enemybullet1 && !enemybullet2)
+		CreateEnemyBullet1(enemies[0]->getpos());
+	}
+	else{
 	if(!enemybullet1)
 	{
 		if(getnearestenemy(player1)>=0)
@@ -219,12 +247,13 @@ void Dualplayer::updatebullets()
 		CreateEnemyBullet1(enemies[getnearestenemy(player1)]->getpos());
 		}
 	}
-	if(!enemybullet2)
+	 if(!enemybullet2)
 	{
 		if(getnearestenemy(player2)>=0)
 		{
 			CreateEnemyBullet2(enemies[getnearestenemy(player2)]->getpos());
 		}
+	}
 	}
 	if(enemybullet1)
 	{
@@ -246,6 +275,84 @@ void Dualplayer::updatebullets()
 	}
 	
 }
+void Dualplayer::CreatePowerup()
+{
+	int a= rand()%3;
+	
+	switch(a)
+	{
+		case 0: 
+		{
+			if(poweruptime>POWERUPTIME)
+			{
+			poweruptime=0;
+			float xpos=rand()%(window->getSize().x-100);
+			powerup=new Shield(textures["SHIELD"],sf::Vector2f(xpos,-20));
+			type=SHIELD;
+			}
+			
+			break;
+		}
+		case 1:
+		{
+			if(poweruptime>POWERUPTIME)
+			{
+			poweruptime=0;
+			float xpos=rand()%(window->getSize().x-100);
+			powerup=new Invisible(textures["INVISIBLE"],sf::Vector2f(xpos,-20));
+			type=INVISIBILTY;
+			}
+			
+			break;
+		}
+		case 2:
+		{
+			if(poweruptime>POWERUPTIME)
+			{
+				poweruptime=0;
+				if(!powerup)
+				{
+				float xpos=rand()%(window->getSize().x-100);
+				powerup=new Medicine(textures["MEDICINE"],sf::Vector2f(xpos,-20));	
+				type=MEDICINE;
+				}
+				
+				break;
+			}
+		}
+	}
+	
+	
+}
+void Dualplayer::checkcatchedpowerup()
+{
+
+	if(player1 && powerup)
+	{
+	if(powerup->getcollider().checkcollison(player1->getcollider()))
+	{
+		if(powerup)
+		{
+		delete powerup;
+		powerup=nullptr;
+		player1->equip(type);
+		}
+	}
+	}
+	if(player2 && powerup)
+	{
+	if(powerup->getcollider().checkcollison(player2->getcollider()))
+	{
+		if(powerup)
+		{
+			delete powerup;
+			powerup=nullptr;
+			player2->equip(type);
+		}
+	}
+	}
+	
+}
 void Dualplayer::levelupdates()
 {
 	if(levels.empty())
@@ -256,23 +363,32 @@ void Dualplayer::levelupdates()
 	{
 		if(levels.front()->getlevel())
 		{
+			if(enemybullet1)
+			{
 			delete enemybullet1;
 			enemybullet1=nullptr;
-			
+			}
+			if(enemybullet2)
+			{
+			delete enemybullet2;
+			enemybullet2=nullptr;
+			}
 			delete levels.front();
 			levels.pop_front();
-				
+			player1score+=player1->getscore();
+			player2score+=player2->getscore();
+			player1->reset();
+			player2->reset();
+			delete powerup;
+			powerup=nullptr;	
 			if(levels.empty())
 			{
 				this->endstate();
+				states->push(new Levelup(window,states));			
 			}
 			else
 			{
-				states->push(new Levelup(window,states,gonext));
-				if(!gonext)
-				{
-					//levels.push_front(new Levelone(textures["ENEMY"],&levels,&enemies));
-				}				
+				states->push(new Levelup(window,states));			
 				if(!player1)
 				{
 					CreatePlayer1();
@@ -301,14 +417,14 @@ void Dualplayer::Rebirth(float dt)
 	revivetime+=dt;
 	if(!player1)
 	{
-		if(revivetime>100)
+		if(revivetime>30)
 		{
 			CreatePlayer1();
 		}
 	}
 	if(!player2)
 	{
-		if(revivetime>100)
+		if(revivetime>30)
 		{
 			CreatePlayer2();
 		}
@@ -316,13 +432,16 @@ void Dualplayer::Rebirth(float dt)
 } 
 void Dualplayer::update(float dt)
 {
+
 	
 	levelupdates();
-	totaltime+=dt;
-	totaltime2+=dt;
+	poweruptime+=dt;
+	ebt1+=dt;
+	ebt2+=dt;
 	Rebirth(dt);
 	updateinput(dt);
 	updateinputtwo(dt);
+	CreatePowerup();
 	if(player1)
 	{
 	player1->update(dt);
@@ -345,9 +464,20 @@ void Dualplayer::update(float dt)
 	{
 		enemybullet2->update(dt);
 	}
+	if(powerup)
+	{
+		powerup->update(dt);
+	}
+	attribute1->update(dt);
+	attribute2->update(dt);
 	updatecollison();
-	checkplayersafety(enemybullet1);
-	checkplayersafety(enemybullet2);
+	
+	checkcatchedpowerup();
+	
+	Deletepowerup();
+	
+	checkplayersafety();
+	
 	Checkcollisonwithbullets(player1);
 	Checkcollisonwithbullets(player2);
 	
@@ -375,32 +505,77 @@ void Dualplayer::Checkcollisonwithbullets(Player* player)
 	}
 	
 }
-void Dualplayer::checkplayersafety(Bullet* enemybullet)
+void Dualplayer::checkplayersafety()
 {
-	if(enemybullet)
+
+	
+	if(player1 && enemybullet1)
+	{	
+	if(enemybullet1->getcollider().checkcollison(player1->getcollider()))
 	{
-	if(player1)
+		if(!player1->hasshield())
+		{
+		player1->incrementkill();
+		}
+		delete enemybullet1;
+		enemybullet1=nullptr;
+	}
+	}
+	if(player2 && enemybullet1)
 	{
-	if(enemybullet->getcollider().checkcollison(player1->getcollider()))
+	if(enemybullet1->getcollider().checkcollison(player2->getcollider()))
+	{
+		if(!player2->hasshield())
+		{
+		player2->incrementkill();
+		}
+		
+		delete enemybullet1;
+		enemybullet1 =nullptr;
+		
+	}
+	}
+	
+	
+	if(player1 && enemybullet2)
+	{	
+	if(enemybullet2->getcollider().checkcollison(player1->getcollider()))
+	{
+		if(!player1->hasshield())
+		{
+			player1->incrementkill();
+		}
+		delete enemybullet2;
+		enemybullet2=nullptr;
+	}
+	}
+	if(player2 && enemybullet2)
+	{
+	if(enemybullet2->getcollider().checkcollison(player2->getcollider()))
+	{
+		if(!player2->hasshield())
+		{
+			player2->incrementkill();
+		}
+		delete enemybullet2;
+		enemybullet2 =nullptr;
+		
+	}
+	
+	}
+	if(player1 && player1->getkill()==0)
 	{
 		delete player1;
 		player1=nullptr;
-		
 	}
-	}
-	if(player2)
-	{
-	if(enemybullet->getcollider().checkcollison(player2->getcollider()))
+	if(player2 && player2->getkill()==0)
 	{
 		delete player2;
 		player2=nullptr;
-		
-	}
-	}
 	}
 	if(!player1 && !player2)
 	{
-		this->endstate();
+		states->push(new Gameover(window,states,&quit));
 	}
 }
 
@@ -413,7 +588,7 @@ int Dualplayer::getnearestenemy(Player* player1)
 	int store=0;
 	for(unsigned i=0;i<enemies.size();i++)
 	{
-		if(abs(enemies[i]->getpos().x-player1->getpos().x)<min)
+		if(abs(enemies[i]->getpos().x-player1->getpos().x)<=min)
 		{
 			min=abs(enemies[i]->getpos().x-player1->getpos().x);
 			store=i;
@@ -424,10 +599,22 @@ int Dualplayer::getnearestenemy(Player* player1)
 	return store;
 	}
 	return -1;
+}
+void Dualplayer::Deletepowerup()
+{
+	if(powerup)
+	{
+	if(powerup->getpos().y>window->getSize().y+100)
+	{
+		delete powerup;
+		powerup=nullptr;
+	}
+	}
 }	
 void Dualplayer::render()
 {
 	
+	window->draw(background);
 	for(auto& a:enemies)
 	{
 		a->render(window);
@@ -442,6 +629,8 @@ void Dualplayer::render()
 	{
 		player2->render(window);
 	}
+	attribute1->render(window);
+	attribute2->render(window);
 	if(enemybullet1)
 	{
 		enemybullet1->render(window);
@@ -450,20 +639,8 @@ void Dualplayer::render()
 	{
 		enemybullet2->render(window);
 	}
-	/*for(unsigned i=0;i<2-bullets1.size();i++)
+	if(powerup)
 	{
-		ammo1.setPosition(window->getSize().x-100,window->getSize().y-100-20*i);
-		window->draw(ammo1);
-	}*/
-}
-/*bool Dualplayer1::levelover()
-{
-	if(player1)
-	{
-		if(this->enemies.empty())
-		{
-			return true;
-		}
+		powerup->render(window);
 	}
-	return false;
-}*/
+}
