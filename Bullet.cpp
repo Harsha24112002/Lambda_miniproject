@@ -15,7 +15,7 @@ Bullet::~Bullet()
 
 void Bullet::update(float dt)
 {
-	bullet.move(0.0f,-direction*100*dt);
+	bullet.move(0.0f,-direction*this->speed*dt);
 }
 void Bullet::render(sf::RenderWindow* window)
 {
