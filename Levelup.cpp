@@ -21,7 +21,7 @@ Levelup::~Levelup()
 }
 void Levelup::initButtons()
 {
-	buttons["NEXTLEVEL"]=new Option("Continue",sf::Vector2f(window->getSize().x/2-100,window->getSize().y/2-100),sf::Vector2f(400,100));	
+	buttons["NEXTLEVEL"]=new Option("Continue",sf::Vector2f(window->getSize().x/2-100,window->getSize().y/2),sf::Vector2f(400,100));	
 }
 
 void Levelup::update(float dt)
