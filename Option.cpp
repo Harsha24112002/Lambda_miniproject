@@ -27,12 +27,17 @@ void Option::update(sf::Vector2i mousepos)
 	switch(bt)
 	{
 	case Idle:
-		text.setFillColor(sf::Color::Blue);break;
+		text.setFillColor(sf::Color::Blue);
+		text.setCharacterSize(50);break;
 	case Hover:
+		text.setCharacterSize(60);
 		text.setFillColor(sf::Color::White);break;
 	case Pressed:
-		text.setFillColor(sf::Color::White);break;
-	default:text.setFillColor(sf::Color::Blue);
+		text.setFillColor(sf::Color::White);
+		text.setCharacterSize(50);break;
+	default:
+		text.setFillColor(sf::Color::Blue);
+		text.setCharacterSize(50);
 	}
 }
 
