@@ -13,6 +13,7 @@ class Game
 	float dt;
 	public:
 	Game();
+	~Game();
 	void update();
 	void render();
 	void endgame(){this->window->close();}
