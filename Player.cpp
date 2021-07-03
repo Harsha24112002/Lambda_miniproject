@@ -102,6 +102,7 @@ void Player::reset()
 	score=0;
 	body.setPosition(pos);
 	kill=3;
+	body.setColor(color);
 	equip(SHIELD);
 	invisible=false;
 }
