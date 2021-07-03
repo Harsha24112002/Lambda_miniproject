@@ -1,7 +1,7 @@
 #ifndef PAUSE_H
 #define PAUSE_H
 #include "State.h"
-
+#include "Mainmenustate.h"
 #include "Option.h"
 class Pause : public state
 {

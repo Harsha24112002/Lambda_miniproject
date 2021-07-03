@@ -1,15 +1,20 @@
 #include "Pause.h"
-#include <iostream>
-#include "Mainmenustate.h"
 Pause::Pause(sf::RenderWindow* window,std::stack<state*>* states,bool* q):state(window,states),gamestatequit(q)
 {
 	initialisebuttons();
 }
-
+Pause::~Pause()
+{
+	for(auto& a:buttons)
+	{
+		delete a.second;
+	}
+	
+}
 void Pause::initialisebuttons()
 {
-	buttons["Continue"]=new Option("Continue",sf::Vector2f(window->getSize().x/2.0f-200.0,window->getSize().y/2.0f-100.0f),sf::Vector2f(200,100));
-	buttons["Exit"]=new Option("Exit",sf::Vector2f(50,200),sf::Vector2f(100,100));
+	buttons["Continue"]=new Option("Continue",sf::Vector2f(XCOORDINATE,YCOORDINATE-100),sf::Vector2f(350,100));
+	buttons["Exit"]=new Option("Exit",sf::Vector2f(XCOORDINATE,YCOORDINATE+100),sf::Vector2f(170,100));
 }
 
 void Pause::update(float dt)
