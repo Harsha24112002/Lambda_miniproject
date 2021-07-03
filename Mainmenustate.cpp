@@ -1,6 +1,4 @@
 #include "Mainmenustate.h"
-#include "Levelone.h"
-#include <iostream>
 Mainmenustate::Mainmenustate(sf::RenderWindow* window,std::stack<state*>* states):state(window,states)
 {
 	this->initialisebuttons();
@@ -8,14 +6,17 @@ Mainmenustate::Mainmenustate(sf::RenderWindow* window,std::stack<state*>* states
 
 Mainmenustate::~Mainmenustate()
 {
-	
+	for(auto& a:buttons)
+	{
+		delete a.second;
+	}	
 }
 
 void Mainmenustate::initialisebuttons()
 {
-	buttons["GAME"]=new Option("Single",sf::Vector2f(window->getSize().x/2.0f-250,window->getSize().y/2.0f-200),sf::Vector2f(250,100));
-	buttons["DUO"]=new Option("Dual",sf::Vector2f(window->getSize().x/2.0f-250,window->getSize().y/2.0f-100),sf::Vector2f(250,100));
-	buttons["Exit"]=new Option("Exit",sf::Vector2f(window->getSize().x/2.0f-250,window->getSize().y/2.0f-0),sf::Vector2f(250,100));
+	buttons["GAME"]=new Option("Single",sf::Vector2f(XCOORDINATE,YCOORDINATE-200),sf::Vector2f BUTTONSIZE);
+	buttons["DUO"]=new Option("Dual",sf::Vector2f(XCOORDINATE,YCOORDINATE),sf::Vector2f BUTTONSIZE);
+	buttons["Exit"]=new Option("Exit",sf::Vector2f(XCOORDINATE,YCOORDINATE+200),sf::Vector2f BUTTONSIZE);
 }
 
 void Mainmenustate::update(float dt)

@@ -4,6 +4,9 @@
 #include "Option.h"
 #include "Singleplayer.h"
 #include "Dualplayer.h"
+#define XCOORDINATE (window->getSize().x/2-200)
+#define YCOORDINATE (window->getSize().y/2.0f-100)
+#define BUTTONSIZE (250,100)
 #include <map>
 class Mainmenustate: public state
 {
