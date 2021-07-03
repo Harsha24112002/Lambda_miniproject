@@ -17,7 +17,7 @@ class state
 		
 	public:
 	state(sf::RenderWindow* window,std::stack<state*>* states);
-	~state();
+	virtual ~state();
 	bool getquit(){return this->quit;}
 	virtual void update(float dt)=0;
 	virtual void render()=0;
