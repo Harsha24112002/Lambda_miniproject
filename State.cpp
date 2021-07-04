@@ -23,6 +23,8 @@ state::state(sf::RenderWindow* window,std::stack<state*>* states)
 	textures["EXPLOSION"]->loadFromFile("exp2_0.png");
 	textures["BACKGROUND"]=new sf::Texture();
 	textures["BACKGROUND"]->loadFromFile("spacebackground.jpeg");
+	textures["MAINMENUBACKGROUND"]=new sf::Texture();
+	textures["MAINMENUBACKGROUND"]->loadFromFile("Mainmenubg.jpg");
 	this->quit=false;
 }
 state::~state()
