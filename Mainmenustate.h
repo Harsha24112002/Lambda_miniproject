@@ -13,7 +13,7 @@ class Mainmenustate: public state
 	private:
 	std::map<std::string,Option*> buttons;
 	void initialisebuttons();
-
+	sf::RectangleShape background;
 
 	public:
 	Mainmenustate(sf::RenderWindow* window,std::stack<state*>* states);
