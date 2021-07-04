@@ -27,7 +27,7 @@ void Option::update(sf::Vector2i mousepos)
 	switch(bt)
 	{
 	case Idle:
-		text.setFillColor(sf::Color::Blue);
+		text.setFillColor(sf::Color::Cyan);
 		text.setCharacterSize(50);break;
 	case Hover:
 		text.setCharacterSize(60);
