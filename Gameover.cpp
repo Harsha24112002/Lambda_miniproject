@@ -8,7 +8,7 @@ Gameover::Gameover(sf::RenderWindow* window,std::stack<state*>* states,bool *qui
 void Gameover::initButtons()
 {
 	
-	buttons["QUIT"]=new Option("QUIT",sf::Vector2f(window->getSize().x/2,window->getSize().y/2-300),sf::Vector2f(150,100));	
+	buttons["QUIT"]=new Option("QUIT",sf::Vector2f(window->getSize().x/2,window->getSize().y/2-200),sf::Vector2f(150,100));	
 }
 
 void Gameover::update(float dt)
