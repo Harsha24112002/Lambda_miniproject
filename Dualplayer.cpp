@@ -39,8 +39,8 @@ void Dualplayer::initvariables()
 	ebt1=0.0f;
 	ebt2=0.0f;
 	poweruptime=0.0f;
-	attribute1 = new Attributes(player1,"PLAYER 1 : ",100.0);
-	attribute2 = new Attributes(player2,"PLAYER 2 : ",300.0);
+	
+	
 
 }
 void Dualplayer::Initbackground()
@@ -54,12 +54,18 @@ void Dualplayer::Initbackground()
 void Dualplayer::CreatePlayer1()
 {
 	if(!player1)
+	{
 	player1 = new Player(textures["PLAYER"],sf::Color::Cyan,textures["BULLET"],sf::Vector2f PLAYER1POS);
+	attribute1 = new Attributes(player1,"PLAYER 1 : ",100.0);
+	}
 }
 void Dualplayer::CreatePlayer2()
 {
 	if(!player2)
+	{
 	player2=new Player(textures["PLAYER"],sf::Color(255,131,250,255),textures["BULLET"],sf::Vector2f PLAYER2POS);
+	attribute2 = new Attributes(player2,"PLAYER 2 : ",300.0);
+	}
 }
 void Dualplayer::intilevels()
 {
@@ -279,9 +285,9 @@ void Dualplayer::updatebullets()
 }
 void Dualplayer::CreatePowerup()
 {
-	int a= rand()%3;
+	int a= rand();
 	
-	switch(a)
+	switch(a%3)
 	{
 		case 0: 
 		{
@@ -447,10 +453,12 @@ void Dualplayer::update(float dt)
 	if(player1)
 	{
 	player1->update(dt);
+	attribute1->update(dt);
 	}
 	if(player2)
 	{
 		player2->update(dt);
+		attribute2->update(dt);	
 	}
 	for(auto& a:enemies)
 	{
@@ -470,8 +478,8 @@ void Dualplayer::update(float dt)
 	{
 		powerup->update(dt);
 	}
-	attribute1->update(dt);
-	attribute2->update(dt);
+	
+	
 	updatecollison();
 	
 	checkcatchedpowerup();
@@ -569,11 +577,15 @@ void Dualplayer::checkplayersafety()
 	{
 		delete player1;
 		player1=nullptr;
+		delete attribute1;
+		attribute1=nullptr;
 	}
 	if(player2 && player2->getkill()==0)
 	{
 		delete player2;
 		player2=nullptr;
+		delete attribute2;
+		attribute2=nullptr;
 	}
 	if(!player1 && !player2)
 	{
@@ -626,13 +638,13 @@ void Dualplayer::render()
 	{
 	
 	player1->render(window);
+	attribute1->render(window);
 	}
 	if(player2)
 	{
 		player2->render(window);
+		attribute2->render(window);	
 	}
-	attribute1->render(window);
-	attribute2->render(window);
 	if(enemybullet1)
 	{
 		enemybullet1->render(window);
