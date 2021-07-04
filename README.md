@@ -5,12 +5,20 @@
 - The game runs on a full screen mode.
 - It has attributes for the player like health,score.
 - It has a liitle bit of animation for explosion.
-- The health bar corresponds to three collisions,meaning if you are hit by three bullets without picking any powerups, *GAME ENDS*.
 
 ## GAME
 - There will be enemies moving right and left continuously and firing at you.
 - You have to escape from the bullets of enemies and simultaneously kill them.
 - When both player bullet and enemy bullet collide they get destroyed.
+- The health bar corresponds to three collisions,meaning if you are hit by three bullets without picking any powerups, *GAME ENDS*.
+- Score is put to zero after end of every level.
+
+## EXITING THE GAME
+
+- You can press Exit(at Mainmenu) to closs the application.
+- To pause in middle of a level press:
+>Escape key
+- You have an option to Exit into the Mainmenu from the Pause menu.
 
 ## Single Player Mode:
 
@@ -39,6 +47,8 @@
 > Q
 
 - Health bars and scores are in the color of respective players.
+- In this mode, if anyone of the player dies he gets revived automatically into the game after sometime(Atleast one should be alive till then), but his score is again put to zero.
+
 
 ## About Powerups
 - There are three powerups which fall randomly during the game play
