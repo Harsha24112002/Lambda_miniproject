@@ -1,4 +1,4 @@
-SFMLDIR=/home/harsha/packages/SFML-2.5.1
+SFMLDIR=/$(HOME)/packages/SFML-2.5.1
 INCLUDEDIR=$(SFMLDIR)/include
 LIBDIR=$(SFMLDIR)/lib
 CC =g++
