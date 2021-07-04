@@ -1,9 +1,21 @@
 # Lambda_miniproject
 # Game inspired from Space Invaders
+# Installing the Game
+- Clone this repository-
+- Make sure you have a g++ compiler.
+- Maku sure you have installed the SFML library. If you don't have one, download from
+[here](https://www.sfml-dev.org/download.php)
+- Build this using the makefile by making necessary changes to SFML library location in the makefile.
+- If SFML is installed in the standard path, you can just run by 
+> ./Game
+- If not, 
+> export LD_LIBRARY_PATH=(sfml-install-path)/lib && ./Game
+# About the Game
 ##  Introduction
 - It supports **single** and **dual** player mode.
 - The game runs on a full screen mode.
 - It has attributes for the player like health,score.
+- There are some **Powerups** for the players.
 - It has a liitle bit of animation for explosion.
 
 ## GAME
