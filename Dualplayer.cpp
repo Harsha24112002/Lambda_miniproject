@@ -65,6 +65,8 @@ void Dualplayer::intilevels()
 {
 	levels.push_back(new Level(textures["ENEMY"],textures["EXPLOSION"],"levelonepositions.txt",&enemies));
 	levels.push_back(new Level(textures["ENEMY"],textures["EXPLOSION"],"leveltwopositions.txt",&enemies));
+	levels.push_back(new Level(textures["ENEMY"],textures["EXPLOSION"],"levelthreepositions.txt",&enemies));
+
 	startlevel();
 }
 void Dualplayer::startlevel()
@@ -286,7 +288,7 @@ void Dualplayer::CreatePowerup()
 			if(poweruptime>POWERUPTIME)
 			{
 			poweruptime=0;
-			float xpos=rand()%(window->getSize().x-100);
+			float xpos=rand()%(window->getSize().x-300)+100;
 			powerup=new Shield(textures["SHIELD"],sf::Vector2f(xpos,-20));
 			type=SHIELD;
 			}
@@ -298,7 +300,7 @@ void Dualplayer::CreatePowerup()
 			if(poweruptime>POWERUPTIME)
 			{
 			poweruptime=0;
-			float xpos=rand()%(window->getSize().x-100);
+			float xpos=rand()%(window->getSize().x-300)+100;
 			powerup=new Invisible(textures["INVISIBLE"],sf::Vector2f(xpos,-20));
 			type=INVISIBILTY;
 			}
@@ -312,7 +314,7 @@ void Dualplayer::CreatePowerup()
 				poweruptime=0;
 				if(!powerup)
 				{
-				float xpos=rand()%(window->getSize().x-100);
+				float xpos=rand()%(window->getSize().x-300)+100;
 				powerup=new Medicine(textures["MEDICINE"],sf::Vector2f(xpos,-20));	
 				type=MEDICINE;
 				}

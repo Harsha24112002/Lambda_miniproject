@@ -28,6 +28,7 @@ void Singleplayer::intilevels()
 {
 	levels.push_back(new Level(textures["ENEMY"],textures["EXPLOSION"],"levelonepositions.txt",&enemies));
 	levels.push_back(new Level(textures["ENEMY"],textures["EXPLOSION"],"leveltwopositions.txt",&enemies));
+	levels.push_back(new Level(textures["ENEMY"],textures["EXPLOSION"],"levelthreepositions.txt",&enemies));
 	startlevel();
 }
 void Singleplayer::Initbackground()
